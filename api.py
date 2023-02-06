@@ -3,6 +3,7 @@ import sys
 
 import requests
 from PyQt5.QtGui import QPixmap
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel
 
 SCREEN_SIZE = [800, 600]
@@ -13,6 +14,7 @@ class Example(QWidget):
         super().__init__()
         self.lon = f'{lat}'
         self.lat = f'{lon}'
+        self.delta = f'{2}'
         self.getImage()
         self.initUI()
 
@@ -22,11 +24,11 @@ class Example(QWidget):
 
         lon = self.lon
         lat = self.lat
-        delta = "0.2"
+        delta = self.delta
 
         params = {
             "ll": ",".join([lon, lat]),
-            "spn": ",".join([delta, delta]),
+            "z": f'{self.delta}',
             "l": "map"
         }
         response = requests.get(api_server, params=params)
@@ -53,9 +55,24 @@ class Example(QWidget):
         self.image.resize(600, 450)
         self.image.setPixmap(self.pixmap)
 
+    def image_change_event(self):
+        self.getImage()
+        self.pixmap = QPixmap(self.map_file)
+
+        self.image.setPixmap(self.pixmap)
+
     def closeEvent(self, event):
         """При закрытии формы подчищаем за собой"""
         os.remove(self.map_file)
+
+    def keyPressEvent(self, event):
+        if event.key() == 16777238:
+            self.delta = str(int(self.delta) + 1)
+
+        elif event.key() == 16777239:
+            self.delta = str(int(self.delta) - 1)
+
+        self.image_change_event()
 
 
 if __name__ == '__main__':
@@ -64,4 +81,5 @@ if __name__ == '__main__':
 
     ex = Example(coords[0], coords[1])
     ex.show()
+
     sys.exit(app.exec())
