@@ -5,12 +5,14 @@ import requests
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel
 
-SCREEN_SIZE = [600, 450]
+SCREEN_SIZE = [800, 600]
 
 
 class Example(QWidget):
-    def __init__(self):
+    def __init__(self, lon, lat):
         super().__init__()
+        self.lon = f'{lat}'
+        self.lat = f'{lon}'
         self.getImage()
         self.initUI()
 
@@ -18,9 +20,9 @@ class Example(QWidget):
         import requests
         api_server = "http://static-maps.yandex.ru/1.x/"
 
-        lon = "37.530887"
-        lat = "55.703118"
-        delta = "0.002"
+        lon = self.lon
+        lat = self.lat
+        delta = "0.2"
 
         params = {
             "ll": ",".join([lon, lat]),
@@ -28,7 +30,7 @@ class Example(QWidget):
             "l": "map"
         }
         response = requests.get(api_server, params=params)
-        
+
         if not response:
             print("Ошибка выполнения запроса:")
             print(api_server)
@@ -58,6 +60,8 @@ class Example(QWidget):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    ex = Example()
+    coords = [float(elem) for elem in input().split(', ')]
+
+    ex = Example(coords[0], coords[1])
     ex.show()
     sys.exit(app.exec())
