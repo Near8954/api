@@ -14,7 +14,7 @@ class Example(QWidget):
         super().__init__()
         self.lon = f'{lat}'
         self.lat = f'{lon}'
-        self.delta = f'{2}'
+        self.delta = f'{10}'
         self.getImage()
         self.initUI()
 
@@ -29,7 +29,7 @@ class Example(QWidget):
         params = {
             "ll": ",".join([lon, lat]),
             "z": f'{self.delta}',
-            "l": "map"
+            "l": "sat"
         }
         response = requests.get(api_server, params=params)
 
@@ -52,7 +52,7 @@ class Example(QWidget):
         self.pixmap = QPixmap(self.map_file)
         self.image = QLabel(self)
         self.image.move(0, 0)
-        self.image.resize(600, 450)
+        self.image.resize(800, 600)
         self.image.setPixmap(self.pixmap)
 
     def image_change_event(self):
@@ -66,11 +66,21 @@ class Example(QWidget):
         os.remove(self.map_file)
 
     def keyPressEvent(self, event):
-        if event.key() == 16777238:
-            self.delta = str(int(self.delta) + 1)
 
-        elif event.key() == 16777239:
+        if event.key() == 16777238 and int(self.delta) < 20:
+            self.delta = str(int(self.delta) + 1)
+        elif event.key() == 16777239 and int(self.delta) > 0:
             self.delta = str(int(self.delta) - 1)
+
+        elif event.key() == 16777236:  # right
+            self.lon = str(float(self.lon) + 0.0001 * (20 - int(self.delta)))
+        elif event.key() == 16777234:  # left
+            self.lon = str(float(self.lon) - 0.0001 * (20 - int(self.delta)))
+
+        elif event.key() == 16777235:  # up
+            self.lat = str(float(self.lat) + 0.0001 * (20 - int(self.delta)))
+        elif event.key() == 16777237:  # down
+            self.lat = str(float(self.lat) - 0.0001 * (20 - int(self.delta)))
 
         self.image_change_event()
 
