@@ -2,9 +2,11 @@ import os
 import sys
 
 import requests
+from PyQt5 import uic
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QRadioButton, \
+    QHBoxLayout
 
 SCREEN_SIZE = [800, 600]
 
@@ -12,9 +14,12 @@ SCREEN_SIZE = [800, 600]
 class Example(QWidget):
     def __init__(self, lon, lat):
         super().__init__()
+        uic.loadUi('map_window.ui')
         self.lon = f'{lat}'
         self.lat = f'{lon}'
         self.delta = f'{10}'
+        self.type_of_map = 0
+        self.list_of_types_of_map = ['map', 'sat', 'skl']
         self.getImage()
         self.initUI()
 
@@ -29,7 +34,7 @@ class Example(QWidget):
         params = {
             "ll": ",".join([lon, lat]),
             "z": f'{self.delta}',
-            "l": "sat"
+            "l": self.list_of_types_of_map[self.type_of_map % 3]
         }
         response = requests.get(api_server, params=params)
 
@@ -81,7 +86,8 @@ class Example(QWidget):
             self.lat = str(float(self.lat) + 0.0001 * (20 - int(self.delta)))
         elif event.key() == 16777237:  # down
             self.lat = str(float(self.lat) - 0.0001 * (20 - int(self.delta)))
-
+        elif event.key() == 32:  # смена вида карты
+            self.type_of_map += 1
         self.image_change_event()
 
 
